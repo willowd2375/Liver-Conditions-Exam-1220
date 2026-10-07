@@ -1,0 +1,1058 @@
+<<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Interactive NCLEX Super Quiz: Liver Conditions & Hepatitis (Chapter 50)</title>
+<style>
+    :root {
+        --primary: #1e3a8a;
+        --secondary: #3b82f6;
+        --accent: #10b981;
+        --danger: #ef4444;
+        --background: #f8fafc;
+        --surface: #ffffff;
+        --text: #1e293b;
+        --border: #cbd5e1;
+    }
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: var(--background);
+        color: var(--text);
+        margin: 0;
+        padding: 20px;
+        line-height: 1.6;
+    }
+    .container {
+        max-width: 900px;
+        margin: 0 auto;
+        background: var(--surface);
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+    h1 {
+        color: var(--primary);
+        text-align: center;
+        margin-bottom: 5px;
+    }
+    .subtitle {
+        text-align: center;
+        color: #64748b;
+        margin-bottom: 25px;
+        font-size: 1.1rem;
+    }
+    .progress-bar-container {
+        background: #e2e8f0;
+        border-radius: 999px;
+        height: 12px;
+        width: 100%;
+        margin-bottom: 25px;
+        overflow: hidden;
+    }
+    .progress-bar {
+        background: var(--secondary);
+        height: 100%;
+        width: 0%;
+        transition: width 0.3s ease;
+    }
+    .question-card {
+        display: none;
+    }
+    .question-card.active {
+        display: block;
+    }
+    .question-number {
+        font-weight: 700;
+        color: var(--secondary);
+        font-size: 0.95rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 8px;
+    }
+    .question-stem {
+        font-size: 1.15rem;
+        font-weight: 600;
+        margin-bottom: 20px;
+        color: var(--primary);
+    }
+    .options-list {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 20px 0;
+    }
+    .option-item {
+        background: #f1f5f9;
+        border: 2px solid var(--border);
+        border-radius: 8px;
+        padding: 12px 16px;
+        margin-bottom: 10px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    .option-item:hover {
+        background: #e2e8f0;
+        border-color: var(--secondary);
+    }
+    .option-item input {
+        margin-top: 4px;
+    }
+    .option-item.correct {
+        background: #d1fae5;
+        border-color: var(--accent);
+        color: #065f46;
+    }
+    .option-item.incorrect {
+        background: #fee2e2;
+        border-color: var(--danger);
+        color: #991b1b;
+    }
+    .rationale-box {
+        background: #eff6ff;
+        border-left: 5px solid var(--secondary);
+        padding: 15px;
+        border-radius: 0 8px 8px 0;
+        margin-top: 15px;
+        display: none;
+        font-size: 0.95rem;
+    }
+    .rationale-box.visible {
+        display: block;
+    }
+    .btn-container {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 25px;
+        gap: 15px;
+    }
+    button {
+        background: var(--primary);
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        font-size: 1rem;
+        font-weight: 600;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+    button:hover {
+        background: #1e40af;
+    }
+    button:disabled {
+        background: #94a3b8;
+        cursor: not-allowed;
+    }
+    .case-study-box {
+        background: #f8fafc;
+        border: 1px solid var(--border);
+        padding: 18px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        font-size: 0.95rem;
+    }
+    .sbar-input {
+        width: 100%;
+        min-height: 70px;
+        padding: 10px;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        margin-top: 5px;
+        margin-bottom: 15px;
+        font-family: inherit;
+    }
+    #results-screen {
+        display: none;
+        text-align: center;
+    }
+    .score-display {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: var(--primary);
+        margin: 20px 0;
+    }
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Nursing Super-Tutor Exam Generator</h1>
+    <div class="subtitle">Chapter 50: Liver Conditions & Hepatitis (PowerPoint & Textbook Aligned)</div>
+    
+    <div class="progress-bar-container">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <div id="quiz-container">
+        <!-- Question cards will be dynamically injected here -->
+    </div>
+
+    <div id="results-screen">
+        <h2>Exam Completed!</h2>
+        <div class="score-display" id="finalScoreDisplay"></div>
+        <p id="scoreMessage"></p>
+        <div style="margin-top: 30px; display: flex; justify-content: center; gap: 15px;">
+            <button onclick="restartQuiz()">Retake Full Quiz</button>
+            <button onclick="retakeMissed()" id="missedBtn" style="background: var(--secondary); display:none;">Retake Missed Questions</button>
+        </div>
+    </div>
+</div>
+
+<script>
+const quizData = [
+    // --- CIRRHOSIS: PATHOPHYSIOLOGY, CAUSES & COMPENSATED VS DECOMPENSATED ---
+    {
+        id: 1,
+        type: "mc",
+        stem: "A student nurse is reviewing the pathophysiology of cirrhosis. Which definition accurately describes cirrhosis as outlined in the course materials?",
+        options: [
+            { text: "Temporary, fully reversible acute swelling of hepatocytes caused by acetaminophen overdose.", correct: false },
+            { text: "Extensive, irreversible scarring of the liver caused by a chronic reaction to hepatic inflammation and necrosis.", correct: true },
+            { text: "Bacterial colonization of the intrahepatic bile ducts resulting in localized abscess formation.", correct: false },
+            { text: "Congenital dilation of the portal vein leading to decreased systemic vascular resistance.", correct: false }
+        ],
+        rationale: "Cirrhosis is defined as extensive, irreversible scarring of the liver, usually resulting from a chronic reaction to hepatic inflammation and necrosis where normal liver tissue is replaced with non-functioning fibrotic tissue."
+    },
+    {
+        id: 2,
+        type: "mc",
+        stem: "When differentiating between compensated and decompensated cirrhosis, which clinical state indicates that the liver is failing to synthesize proteins and handle portal pressures properly?",
+        options: [
+            { text: "Compensated cirrhosis, where the scarred liver continues to perform vital metabolic functions without overt clinical failure signs.", correct: false },
+            { text: "Decompensated cirrhosis, where portal hypertension and liver failure manifest with complications like ascites, jaundice, and bleeding.", correct: true },
+            { text: "Pre-cirrhotic fatty infiltration without cellular inflammation or fibrosis.", correct: false },
+            { text: "Acute viral clearance phase characterized by transient transaminase elevation.", correct: false }
+        ],
+        rationale: "In decompensated cirrhosis, the liver's synthetic and filtering functions fail significantly, leading to clinical complications such as portal hypertension, ascites, jaundice, and hepatic encephalopathy."
+    },
+    {
+        id: 3,
+        type: "sata",
+        stem: "A nurse is conducting a patient history for a client suspected of developing cirrhosis. Which patient history findings align with known causes of hepatic inflammation and scarring? Select all that apply.",
+        options: [
+            { text: "Chronic heavy alcohol consumption (ETOH)", correct: true },
+            { text: "History of viral hepatitis (such as Hepatitis B or C)", correct: true },
+            { text: "Regular daily intake of fresh green leafy vegetables", correct: false },
+            { text: "Autoimmune disorders affecting the liver", correct: true },
+            { text: "Chronic exposure to hepatotoxic drugs and industrial toxins", correct: true }
+        ],
+        rationale: "Cirrhosis has multiple causes including chronic alcohol abuse, viral hepatitis (B and C), autoimmune disorders, and exposure to hepatic toxins or drugs. Eating vegetables is a healthy dietary habit and does not cause cirrhosis."
+    },
+    // --- CIRRHOSIS: ASSESSMENT & CLINICAL MANIFESTATIONS ---
+    {
+        id: 4,
+        type: "mc",
+        stem: "A client with advanced cirrhosis is admitted to the medical unit. Which physical assessment finding is characteristic of late-stage portal hypertension and fluid retention?",
+        options: [
+            { text: "Marked abdominal distension with shifting dullness and prominent umbilical caput medusae", correct: true },
+            { text: "Bounding peripheral pulses and sustained systemic hypertension exceeding 160/95 mmHg", correct: false },
+            { text: "Extreme skin pallor with total absence of any yellowish coloration", correct: false },
+            { text: "Hyperactive bowel sounds with generalized lower extremity muscle hypertrophy", correct: false }
+        ],
+        rationale: "Late cirrhosis features massive ascites (demonstrated by shifting dullness and distension) and portal hypertension causing collateral vessel engorgement like caput medusae. Patients typically have low blood pressure, not hypertension."
+    },
+    {
+        id: 5,
+        type: "mc",
+        stem: "A nurse observes yellowish sclera and golden-yellow skin tones in a client with cirrhosis. What underlying physiological process causes this manifestation (jaundice)?",
+        options: [
+            { text: "Excessive renal excretion of red blood cells", correct: false },
+            { text: "Obstruction of bile flow through the diseased liver and failure to conjugate and excrete bilirubin", correct: true },
+            { text: "Deposition of excess serum albumin in subcutaneous tissue layers", correct: false },
+            { text: "Bacterial breakdown of serum ammonia in systemic capillaries", correct: false }
+        ],
+        rationale: "Jaundice occurs because the scarred, inflamed liver cannot properly conjugate and excrete bilirubin, causing bile ducts to compress and bilirubin to back up into the bloodstream and skin."
+    },
+    {
+        id: 6,
+        type: "sata",
+        stem: "Which physical assessment findings should the nurse anticipate when evaluating a client with advanced cirrhosis? Select all that apply.",
+        options: [
+            { text: "Spider angiomas on the upper thorax and face", correct: true },
+            { text: "Palmar erythema", correct: true },
+            { text: "Dependent peripheral pitting edema in lower extremities", correct: true },
+            { text: "Elevated platelet counts exceeding 450,000/mm³", correct: false },
+            { text: "Petechiae and ecchymoses", correct: true }
+        ],
+        rationale: "Advanced cirrhosis causes vascular changes (spider angiomas, palmar erythema), fluid retention (dependent edema), and coagulation defects due to low clotting factors and hypersplenism (causing thrombocytopenia, not thrombocytosis, leading to petechiae/ecchymoses)."
+    },
+    // --- CIRRHOSIS: LABS, DIAGNOSTICS & COMPLICATIONS ---
+    {
+        id: 7,
+        type: "mc",
+        stem: "A client with cirrhosis has an elevated serum ammonia level. Which neuropsychiatric complication is directly linked to this finding?",
+        options: [
+            { text: "Hepatic encephalopathy", correct: true },
+            { text: "Spontaneous bacterial peritonitis", correct: false },
+            { text: "Hepatorenal syndrome", correct: false },
+            { text: "Esophageal variceal hemorrhage", correct: false }
+        ],
+        rationale: "Hepatic encephalopathy results from the brain's exposure to high levels of circulating neurotoxins, particularly ammonia, which the failing liver can no longer convert to urea for excretion."
+    },
+    {
+        id: 8,
+        type: "mc",
+        stem: "A nurse is caring for a client with cirrhosis who exhibits asterixis. How does the nurse correctly assess for this sign?",
+        options: [
+            { text: "Palpating the right upper quadrant for liver span tenderness.", correct: false },
+            { text: "Asking the client to extend the arms, dorsiflex the wrists, and observing for a rapid, nonrhythmic flapping tremor.", correct: true },
+            { text: "Auscultating lung bases for crackles caused by pulmonary edema.", correct: false },
+            { text: "Testing deep tendon reflexes in the patellar tendon.", correct: false }
+        ],
+        rationale: "Asterixis (liver flap) is an early neurological sign of hepatic encephalopathy assessed by having the patient extend arms and hands, resulting in a characteristic flapping tremor of the wrists."
+    },
+    {
+        id: 9,
+        type: "mc",
+        stem: "Which laboratory abnormality is expected in a client with end-stage cirrhosis due to impaired hepatic synthesis of clotting factors and hypersplenism?",
+        options: [
+            { text: "Prolonged Prothrombin Time (PT/INR) and thrombocytopenia", correct: true },
+            { text: "Elevated serum albumin and decreased blood urea nitrogen", correct: false },
+            { text: "Increased red blood cell count and elevated hematocrit", correct: false },
+            { text: "Marked elevation of serum lipase and amylase", correct: false }
+        ],
+        rationale: "The liver synthesizes prothrombin and clotting factors; when it fails, PT/INR prolongs. Furthermore, portal hypertension causes splenomegaly, trapping and destroying platelets (thrombocytopenia)."
+    },
+    {
+        id: 10,
+        type: "mc",
+        stem: "Which diagnostic procedure is utilized to visualize esophageal varices and assess bleeding risk in a client with cirrhosis?",
+        options: [
+            { text: "Esophagogastroduodenoscopy (EGD)", correct: true },
+            { text: "Ultrasound transient elastography", correct: false },
+            { text: "Barium swallow fluoroscopy", correct: false },
+            { text: "Endoscopic retrograde cholangiopancreatography (ERCP)", correct: false }
+        ],
+        rationale: "EGD directly visualizes the upper gastrointestinal mucosa to identify, grade, and treat esophageal varices before or during active hemorrhage."
+    },
+    // --- CIRRHOSIS: INTERVENTIONS, NUTRITION & PROCEDURES ---
+    {
+        id: 11,
+        type: "mc",
+        stem: "A client with cirrhosis and massive ascites is scheduled for an abdominal paracentesis. Which pre-procedure nursing action is essential?",
+        options: [
+            { text: "Instruct the client to void immediately before the procedure to prevent accidental bladder perforation.", correct: true },
+            { text: "Place the client in a prone position with sandbags on the abdomen.", correct: false },
+            { text: "Administer a high-protein oral meal right before the procedure.", correct: false },
+            { text: "Restrict all IV fluids for 24 hours prior.", correct: false }
+        ],
+        rationale: "Having the client empty their bladder immediately prior to a paracentesis shifts the bladder out of the needle's path, preventing accidental bladder perforation."
+    },
+    {
+        id: 12,
+        type: "sata",
+        stem: "A nurse is managing the care of a hospitalized client with decompensated cirrhosis. Which nursing interventions are appropriate for patient safety and symptom management? Select all that apply.",
+        options: [
+            { text: "Administering prescribed lactulose to achieve 2 to 3 soft stools daily and reduce ammonia.", correct: true },
+            { text: "Implementing strict dietary sodium and fluid restrictions as ordered to manage ascites.", correct: true },
+            { text: "Encouraging a high-protein, zero-carbohydrate diet to build muscle mass.", correct: false },
+            { text: "Monitoring abdominal girth daily and recording precise intake and output.", correct: true },
+            { text: "Implementing bleeding precautions (e.g., soft toothbrush, electric razor) due to coagulation defects.", correct: true }
+        ],
+        rationale: "Lactulose lowers ammonia, sodium/fluid restrictions manage ascites, girth/I&O track fluid retention, and bleeding precautions protect against coagulopathy. High protein is restricted or carefully controlled, not unlimited, to prevent hepatic encephalopathy."
+    },
+    {
+        id: 13,
+        type: "mc",
+        stem: "What is the primary mechanism of action of lactulose when administered to a client with hepatic encephalopathy?",
+        options: [
+            { text: "It binds to serum ammonia in the bloodstream and promotes renal filtration.", correct: false },
+            { text: "It creates an acidic environment in the bowel that traps ammonia and expels it in the stool.", correct: true },
+            { text: "It destroys gastric mucosa to prevent protein absorption.", correct: false },
+            { text: "It dilates renal blood vessels to reverse hepatorenal syndrome.", correct: false }
+        ],
+        rationale: "Lactulose lowers colonic pH, converting absorbable ammonia (NH3) into trapped ammonium (NH4+), which is then excreted via bowel movements."
+    },
+    {
+        id: 14,
+        type: "mc",
+        stem: "Which medication is commonly prescribed alongside diuretics like furosemide to manage ascites while minimizing potassium wasting?",
+        options: [
+            { text: "Spironolactone", correct: true },
+            { text: "Neomycin sulfate", correct: false },
+            { text: "Propranolol", correct: false },
+            { text: "Acetaminophen", correct: false }
+        ],
+        rationale: "Spironolactone is a potassium-sparing diuretic that antagonizes aldosterone, making it extremely effective when combined with loop diuretics for cirrhotic ascites."
+    },
+    {
+        id: 15,
+        type: "mc",
+        stem: "A nurse is caring for a client who underwent a Transjugular Intrahepatic Portosystemic Shunt (TIPS) procedure. What post-procedure complication must the nurse monitor for closely?",
+        options: [
+            { text: "Hepatic encephalopathy due to blood bypassing liver filtration", correct: true },
+            { text: "Severe systemic hypertension", correct: false },
+            { text: "Rapid bone marrow regeneration and polycythemia", correct: false },
+            { text: "Complete obstruction of the renal arteries", correct: false }
+        ],
+        rationale: "TIPS creates a shunt between the portal and hepatic veins to relieve portal pressure; however, because blood bypasses hepatic filtration, toxic substances like ammonia enter systemic circulation, increasing the risk of hepatic encephalopathy."
+    },
+    // --- HEPATITIS: PATHOPHYSIOLOGY, CAUSES & TYPES ---
+    {
+        id: 16,
+        type: "mc",
+        stem: "How is viral hepatitis formally defined according to the course curriculum?",
+        options: [
+            { text: "Localized bacterial infection of the gallbladder and cystic duct.", correct: false },
+            { text: "Widespread inflammation and infection of the liver cells caused primarily by hepatotropic viruses (A through E).", correct: true },
+            { text: "Congenital narrowing of the hepatic veins leading to acute right-sided heart failure.", correct: false },
+            { text: "Metabolic accumulation of triglycerides within hepatocytes due to obesity.", correct: false }
+        ],
+        rationale: "Viral hepatitis is defined as widespread inflammation and infection of liver cells resulting from infections caused by Hepatitis A through E viruses."
+    },
+    {
+        id: 17,
+        type: "mc",
+        stem: "A client is diagnosed with chronic hepatitis. According to the course materials, hepatitis is classified as chronic when it persists beyond what timeframe?",
+        options: [
+            { text: "2 weeks", correct: false },
+            { text: "6 weeks", correct: false },
+            { text: "6 months", correct: true },
+            { text: "1 year", correct: false },
+        ],
+        rationale: "Chronic hepatitis is defined as liver inflammation persisting for longer than 6 months, most commonly caused by Hepatitis B and C."
+    },
+    {
+        id: 18,
+        type: "sata",
+        stem: "Which types of viral hepatitis are primarily transmitted via the fecal-oral route (e.g., contaminated food/water or poor hygiene)? Select all that apply.",
+        options: [
+            { text: "Hepatitis A", correct: true },
+            { text: "Hepatitis B", correct: false },
+            { text: "Hepatitis C", correct: false },
+            { text: "Hepatitis E", correct: true },
+            { text: "Hepatitis D", correct: false }
+        ],
+        rationale: "Hepatitis A and E are transmitted primarily through the fecal-oral route. Hepatitis B, C, and D are transmitted via blood and body fluids (parenteral/sexual routes)."
+    },
+    {
+        id: 19,
+        type: "mc",
+        stem: "Which viral hepatitis type requires co-infection with Hepatitis B to replicate and cause disease?",
+        options: [
+            { text: "Hepatitis A", correct: false },
+            { text: "Hepatitis C", correct: false },
+            { text: "Hepatitis D", correct: true },
+            { text: "Hepatitis E", correct: false }
+        ],
+        rationale: "Hepatitis D (delta agent) is an incomplete RNA virus that requires the helper function of Hepatitis B surface antigen to infect and replicate within liver cells."
+    },
+    {
+        id: 20,
+        type: "mc",
+        stem: "Which viral hepatitis infection has the highest rate of developing into chronic infection because many infected individuals fail to clear the virus naturally?",
+        options: [
+            { text: "Hepatitis A", correct: false },
+            { text: "Hepatitis C", correct: true },
+            { text: "Hepatitis E", correct: false },
+            { text: "Hepatitis B (when contracted in adulthood)", correct: false }
+        ],
+        rationale: "Hepatitis C has a high chronicity rate because the majority of individuals infected fail to clear the virus, leading to decades of slow, silent liver injury and fibrosis."
+    },
+    // --- HEPATITIS: ASSESSMENT & CLINICAL MANIFESTATIONS ---
+    {
+        id: 21,
+        type: "sata",
+        stem: "A nurse is assessing a client with acute viral hepatitis. Which clinical signs and symptoms should the nurse expect to find? Select all that apply.",
+        options: [
+            { text: "Flu-like symptoms (malaise, fatigue, myalgia)", correct: true },
+            { text: "Right upper quadrant (RUQ) abdominal pain and tenderness", correct: true },
+            { text: "Jaundice (icterus) and scleral icterus", correct: true },
+            { text: "Persistent severe hypertension exceeding 180/110 mmHg", correct: false },
+            { text: "Dark urine and clay-colored stools", correct: true }
+        ],
+        rationale: "Acute viral hepatitis manifests with flu-like symptoms, RUQ discomfort, jaundice, dark urine, and clay stools. Hypertension is not a characteristic sign."
+    },
+    {
+        id: 22,
+        type: "mc",
+        stem: "When reviewing laboratory results for a client with acute viral hepatitis, which enzymes will show marked elevations reflecting hepatocellular injury?",
+        options: [
+            { text: "AST (Aspartate Aminotransferase) and ALT (Alanine Aminotransferase)", correct: true },
+            { text: "Serum amylase and lipase", correct: false },
+            { text: "Blood urea nitrogen and serum creatinine", correct: false },
+            { text: "Serum electrolytes (sodium and potassium)", correct: false }
+        ],
+        rationale: "ALT and AST are primary liver enzymes that spike dramatically during acute inflammation and necrosis of hepatocytes in viral hepatitis."
+    },
+    // --- HEPATITIS: INTERVENTIONS & NURSING MANAGEMENT ---
+    {
+        id: 23,
+        type: "mc",
+        stem: "What is the primary rationale for scheduling alternating periods of rest and activity when caring for a client with acute viral hepatitis?",
+        options: [
+            { text: "To completely halt all cardiac output to the lower extremities.", correct: false },
+            { text: "To reduce the liver's metabolic demands and increase its blood supply to promote cellular regeneration.", correct: true },
+            { text: "To prevent the client from requesting oral nutrition.", correct: false },
+            { text: "To accelerate the renal excretion of direct bilirubin.", correct: false }
+        ],
+        rationale: "Physical rest reduces the metabolic workload of the inflamed liver and maximizes hepatic blood flow, supporting cellular healing and regeneration."
+    },
+    {
+        id: 24,
+        type: "sata",
+        stem: "Which nursing interventions are essential when caring for a client with viral hepatitis in the acute care setting? Select all that apply.",
+        options: [
+            { text: "Promoting adequate hydration and supportive nutritional management", correct: true },
+            { text: "Administering prescribed antiemetics for nausea and managing fatigue", correct: true },
+            { text: "Enforcing strict Standard Precautions and needle safety protocols (needleless systems)", correct: true },
+            { text: "Encouraging the regular daily consumption of alcoholic beverages", correct: false },
+            { text: "Educating the client on proper handwashing and hygiene", correct: true }
+        ],
+        rationale: "Supportive care (hydration, antiemetics, rest), infection control (Standard Precautions, needle safety, handwashing) are cornerstones of hepatitis care. Alcohol is strictly forbidden."
+    },
+    {
+        id: 25,
+        type: "mc",
+        stem: "A healthcare worker sustains an accidental needlestick injury from a patient known to be positive for Hepatitis B surface antigen (HBsAg). The healthcare worker has never been vaccinated against Hepatitis B. What immediate postexposure prophylaxis is indicated?",
+        options: [
+            { text: "Administer oral broad-spectrum antibiotics for 7 days.", correct: false },
+            { text: "Administer Hepatitis B immune globulin (HBIG) and initiate the Hepatitis B vaccine series.", correct: true },
+            { text: "Reassure the worker, as occupational transmission of Hepatitis B is impossible.", correct: false },
+            { text: "Administer a single dose of intravenous acetaminophen.", correct: false }
+        ],
+        rationale: "Unvaccinated individuals exposed to HBV require prompt postexposure prophylaxis consisting of passive immunity (HBIG) plus active immunization (Hepatitis B vaccine series)."
+    },
+    // --- ADDITIONAL CLINICAL NCLEX ITEMS (Q26 - Q50) ---
+    {
+        id: 26,
+        type: "mc",
+        stem: "A client with decompensated cirrhosis complains of severe pruritus (itching) due to accumulated bile salts in the skin. Which nursing comfort measure is appropriate?",
+        options: [
+            { text: "Applying hot heating pads directly to the skin surfaces", correct: false },
+            { text: "Using cool compresses, moisturizing lotions, and maintaining a cool environment", correct: true },
+            { text: "Scrubbing the skin vigorously with harsh antiseptic soap daily", correct: false },
+            { text: "Administering high-dose oral aspirin", correct: false }
+        ],
+        rationale: "Cool compresses and soothing lotions alleviate pruritus from jaundice without damaging fragile skin. Heat intensifies itching, and aspirin increases bleeding risk."
+    },
+    {
+        id: 27,
+        type: "mc",
+        stem: "Which dietary modification is most appropriate for a client with acute viral hepatitis experiencing severe anorexia and nausea?",
+        options: [
+            { text: "Three large, high-protein meals forced daily regardless of nausea", correct: false },
+            { text: "Small, frequent meals rich in carbohydrates and calories tailored to client preferences", correct: true },
+            { text: "Complete, permanent elimination of all dietary carbohydrates", correct: false },
+            { text: "Strict total parenteral nutrition (TPN) for all outpatient cases", correct: false }
+        ],
+        rationale: "Small, frequent, carbohydrate- and calorie-dense meals are best tolerated by clients with hepatitis-induced anorexia and support liver healing."
+    },
+    {
+        id: 28,
+        type: "mc",
+        stem: "What serologic test result indicates past infection and permanent immunity to Hepatitis A virus (HAV)?",
+        options: [
+            { text: "Presence of IgM anti-HAV antibodies", correct: false },
+            { text: "Presence of IgG anti-HAV antibodies", correct: true },
+            { text: "Presence of HBsAg in serum for over 6 months", correct: false },
+            { text: "Undetectable serum albumin", correct: false }
+        ],
+        rationale: "IgM anti-HAV indicates acute infection, whereas IgG anti-HAV indicates past infection or vaccination, conferring long-term immunity."
+    },
+    {
+        id: 29,
+        type: "mc",
+        stem: "What is a major cause of upper gastrointestinal bleeding in clients with advanced cirrhosis?",
+        options: [
+            { text: "Rupture of bleeding esophageal varices due to portal hypertension", correct: true },
+            { text: "Spontaneous perforation of the appendix", correct: false },
+            { text: "Bacterial colonization of the cecum", correct: false },
+            { text: "Gastric outlet obstruction from gallstones", correct: false }
+        ],
+        rationale: "Portal hypertension forces blood into collateral vessels in the lower esophagus (esophageal varices), which are fragile and prone to massive hemorrhage."
+    },
+    {
+        id: 30,
+        type: "mc",
+        stem: "Which clinical finding characterizes hepatorenal syndrome occurring in a client with end-stage liver failure?",
+        options: [
+            { text: "Excessive urine output exceeding 3,000 mL daily with low specific gravity", correct: false },
+            { text: "Oliguria, elevated BUN and creatinine, and progressive kidney failure without intrinsic renal pathology", correct: true },
+            { text: "Immediate normalization of liver enzymes following fluid boluses", correct: false },
+            { text: "Complete resolution of ascites and peripheral edema", correct: false }
+        ],
+        rationale: "Hepatorenal syndrome is a severe functional renal failure associated with advanced liver disease, characterized by marked oliguria, rising creatinine/BUN, and renal vasoconstriction."
+    },
+    {
+        id: 31,
+        type: "mc",
+        stem: "What characteristic breath odor is associated with severe liver failure and hepatic encephalopathy?",
+        options: [
+            { text: "Fetor hepaticus (musty, sweet, fecal odor)", correct: true },
+            { text: "Fruity, acetone breath", correct: false },
+            { text: "Ammonia-like uremic breath", correct: false },
+            { text: "Sweet alcoholic breath", correct: false }
+        ],
+        rationale: "Fetor hepaticus is a distinctive musty, sweet odor caused by metabolic byproducts (mercaptans) bypassing the failing liver into exhaled air."
+    },
+    {
+        id: 32,
+        type: "sata",
+        stem: "When providing discharge teaching to a client with viral hepatitis, which instructions are essential? Select all that apply.",
+        options: [
+            { text: "Avoid all alcoholic beverages entirely.", correct: true },
+            { text: "Consult your primary healthcare provider before taking any OTC drugs or herbal supplements.", correct: true },
+            { text: "Share your eating utensils and drinking glasses freely with family members.", correct: false },
+            { text: "Practice good handwashing hygiene after bathroom use and before eating.", correct: true },
+            { text: "Take acetaminophen regularly for mild headaches without restriction.", correct: false }
+        ],
+        rationale: "Patients must avoid alcohol and check with providers before taking meds (especially hepatotoxic ones like acetaminophen). Handwashing prevents fecal-oral spread (HAV/HEV), and utensils should not be shared if viral shedding is possible."
+    },
+    {
+        id: 33,
+        type: "mc",
+        stem: "Which type of cirrhosis is specifically caused by chronic biliary obstruction or autoimmune destruction of the intrahepatic bile ducts?",
+        options: [
+            { text: "Biliary (cholestatic) cirrhosis", correct: true },
+            { text: "Alcoholic (Laennec's) cirrhosis", correct: false },
+            { text: "Postnecrotic cirrhosis", correct: false },
+            { text: "Nonalcoholic steatohepatitis (NASH) cirrhosis", correct: false }
+        ],
+        rationale: "Biliary cirrhosis arises from chronic biliary stasis, obstruction, or autoimmune inflammation targeting the bile ducts."
+    },
+    {
+        id: 34,
+        type: "mc",
+        stem: "What is the primary objective of prescribing a nonselective beta-blocker (such as propranolol) to a client with cirrhosis and esophageal varices?",
+        options: [
+            { text: "To reduce heart rate and portal venous pressure, thereby lowering the risk of variceal bleeding", correct: true },
+            { text: "To stimulate pancreatic digestive enzyme synthesis", correct: false },
+            { text: "To act as a potent loop diuretic eliminating ascites", correct: false },
+            { text: "To destroy bowel bacteria producing ammonia", correct: false }
+        ],
+        rationale: "Nonselective beta-blockers decrease cardiac output and splanchnic vasoconstriction, effectively lowering portal pressure and reducing the risk of life-threatening variceal hemorrhage."
+    },
+    {
+        id: 35,
+        type: "mc",
+        stem: "Which diagnostic finding confirms Spontaneous Bacterial Peritonitis (SBP) in a client with cirrhotic ascites?",
+        options: [
+            { text: "Paracentesis ascitic fluid leukocyte count with more than 250 polymorphonuclear (PMN) leukocytes", correct: true },
+            { text: "Normal serum ammonia and normal PT/INR", correct: false },
+            { text: "EGD showing grade 1 esophagitis", correct: false },
+            { text: "Elevated serum platelet count above 300,000/mm³", correct: false }
+        ],
+        rationale: "SBP is diagnosed via paracentesis when the ascitic fluid polymorphonuclear (PMN) leukocyte count exceeds 250 cells/mm³, indicating bacterial infection within the peritoneal fluid."
+    },
+    {
+        id: 36,
+        type: "mc",
+        stem: "Which factor explains why women can develop alcoholic cirrhosis with lower cumulative alcohol intake over shorter durations compared to men?",
+        options: [
+            { text: "Differences in gastric alcohol dehydrogenase activity and higher relative body fat distribution", correct: true },
+            { text: "Complete lack of hepatic enzyme systems in females", correct: false },
+            { text: "Rapid metabolism of alcohol by female renal tubules", correct: false },
+            { text: "Higher daily dietary iron absorption in women", correct: false }
+        ],
+        rationale: "Women have lower gastric alcohol dehydrogenase activity and higher body fat percentage, leading to higher blood alcohol concentrations and faster liver injury from alcohol."
+    },
+    {
+        id: 37,
+        type: "mc",
+        stem: "What is the primary role of the professional nurse when applying legal, ethical, and safety guidelines in the care of clients with acute liver failure?",
+        options: [
+            { text: "Advocating for patient safety, enforcing infection control standards, and recognizing subtle changes in clinical status for prompt intervention.", correct: true },
+            { text: "Independently prescribing antiviral drug regimens without physician oversight.", correct: false },
+            { text: "Discharging patients before diagnostic workups are complete to reduce hospital costs.", correct: false },
+            { text: "Withholding pain medication to prevent patient sedation.", correct: false }
+        ],
+        rationale: "Professional nursing practice requires rigorous adherence to patient safety, infection control, objective assessment interpretation, and evidence-based clinical judgment."
+    },
+    {
+        id: 38,
+        type: "mc",
+        stem: "Which therapeutic class of medications is used in modern clinical practice to successfully cure chronic Hepatitis C virus (HCV) infection?",
+        options: [
+            { text: "Direct-Acting Antivirals (DAAs)", correct: true },
+            { text: "Broad-spectrum penicillins", correct: false },
+            { text: "Potassium-sparing diuretics", correct: false },
+            { text: "Proton pump inhibitors", correct: false }
+        ],
+        rationale: "Direct-Acting Antivirals (DAAs) target specific viral proteins, achieving high cure rates (sustained virologic response) for Hepatitis C."
+    },
+    {
+        id: 39,
+        type: "mc",
+        stem: "What physical assessment finding is considered the most reliable indicator of fluid retention and ascites progression in a client with cirrhosis?",
+        options: [
+            { text: "Daily body weight measurement on the same scale at the same time", correct: true },
+            { text: "Visual inspection of finger nail beds", correct: false },
+            { text: "Client self-report of daily thirst sensation", correct: false },
+            { text: "Auscultation of bowel sounds every 4 hours", correct: false }
+        ],
+        rationale: "Weight is the single most sensitive and reliable quantitative indicator of fluid retention in ascites and edema (1 kg of weight gain equals approximately 1 liter of fluid)."
+    },
+    {
+        id: 40,
+        type: "mc",
+        stem: "Which intervention is appropriate when managing a patient with a tunneled peritoneal drainage catheter for refractory ascites at home?",
+        options: [
+            { text: "Educating the patient to drain prescribed fluid volumes (e.g., max 2,000 mL) slowly to prevent hypovolemic shock", correct: true },
+            { text: "Flushing the peritoneal cavity daily with tap water", correct: false },
+            { text: "Removing the tunneled catheter independently each week", correct: false },
+            { text: "Applying unsterile bandages without hand hygiene", correct: false }
+        ],
+        rationale: "Tunneled catheters allow home drainage of ascites, but fluid removal must be controlled (often limited per session) to prevent rapid intravascular volume depletion and shock."
+    },
+    {
+        id: 41,
+        type: "mc",
+        stem: "What serologic marker indicates active, ongoing Hepatitis B infection and infectiousness?",
+        options: [
+            { text: "Hepatitis B surface antigen (HBsAg) persisting over 6 months", correct: true },
+            { text: "Antibodies to Hepatitis B surface antigen (anti-HBs)", correct: false },
+            { text: "IgG antibodies to Hepatitis A", correct: false },
+            { text: "Negative serum HBV viral load", correct: false }
+        ],
+        rationale: "The presence of Hepatitis B surface antigen (HBsAg) indicates active infection (acute or chronic) and viral presence in the blood."
+    },
+    {
+        id: 42,
+        type: "mc",
+        stem: "Which nursing assessment finding is indicative of Stage I hepatic encephalopathy?",
+        options: [
+            { text: "Sleep pattern disturbances, subtle personality changes, and restlessness", correct: true },
+            { text: "Deep coma with unresponsiveness to painful stimuli", correct: false },
+            { text: "Marked confusion, incoherent speech, and violent outbursts", correct: false },
+            { text: "Normal alertness with perfect orientation", correct: false }
+        ],
+        rationale: "Stage I hepatic encephalopathy presents with subtle signs such as inverted sleep cycles, mild confusion, restlessness, and slight personality shifts."
+    },
+    {
+        id: 43,
+        type: "mc",
+        stem: "Why is patient education regarding OTC medications and herbal supplements critical for individuals with liver disease?",
+        options: [
+            { text: "Many OTC drugs (like acetaminophen) and herbal products are metabolized by the liver and can precipitate acute liver failure.", correct: true },
+            { text: "Herbal supplements instantly cure liver cirrhosis.", correct: false },
+            { text: "OTC medications increase kidney filtration rates.", correct: false },
+            { text: "Herbs prevent viral replication of Hepatitis C.", correct: false }
+        ],
+        rationale: "The compromised liver struggles to process medications and toxins; unmonitored OTC drugs and herbal 'detox' supplements can cause severe drug-induced liver injury."
+    },
+    {
+        id: 44,
+        type: "mc",
+        stem: "Which client history detail is most critical when assessing risk factors for Hepatitis C transmission?",
+        options: [
+            { text: "History of IV drug use, blood transfusions prior to 1992, or unsterile tattoos", correct: true },
+            { text: "Eating raw shellfish in a coastal restaurant", correct: false },
+            { text: "Traveling to regions with well-chlorinated municipal water systems", correct: false },
+            { text: "Consuming unpasteurized milk", correct: false }
+        ],
+        rationale: "HCV is a bloodborne pathogen transmitted primarily via IV drug equipment sharing, unscreened blood products before 1992, or unsterile body piercing/tattoo equipment."
+    },
+    {
+        id: 45,
+        type: "mc",
+        stem: "What is the primary purpose of administering neomycin sulfate or lactulose in hepatic encephalopathy?",
+        options: [
+            { text: "To reduce nitrogenous waste (ammonia) produced by intestinal bacteria", correct: true },
+            { text: "To stimulate red blood cell production in bone marrow", correct: false },
+            { text: "To lower systemic blood pressure in portal hypertension", correct: false },
+            { text: "To promote bile acid reabsorption in the terminal ileum", correct: false }
+        ],
+        rationale: "Both lactulose and non-absorbable antibiotics like neomycin target gut flora or ammonia production in the GI tract to lower serum ammonia levels."
+    },
+    {
+        id: 46,
+        type: "mc",
+        stem: "Which finding represents a normal compensatory cardiovascular response or clinical manifestation in early cirrhosis?",
+        options: [
+            { text: "Hyperdynamic circulation with peripheral vasodilation and normal-to-low blood pressure", correct: true },
+            { text: "Sustained hypertension with bounding pulses exceeding 180 mmHg systolic", correct: false },
+            { text: "Bradycardia with heart rates under 45 beats per minute", correct: false },
+            { text: "Complete absence of collateral vessel formation", correct: false }
+        ],
+        rationale: "Cirrhosis and portal hypertension lead to systemic arterial vasodilation, resulting in a hyperdynamic circulatory state with normal or low blood pressure."
+    },
+    {
+        id: 47,
+        type: "mc",
+        stem: "When teaching a client with viral hepatitis about disease prevention, what is the most effective individual hygiene measure to prevent fecal-oral transmission of Hepatitis A?",
+        options: [
+            { text: "Rigorous handwashing with soap and water after using the restroom and before handling food", correct: true },
+            { text: "Wearing surgical masks during casual conversation", correct: false },
+            { text: "Avoiding all outdoor physical exercise", correct: false },
+            { text: "Taking prophylactic daily multivitamins", correct: false }
+        ],
+        rationale: "Hepatitis A spreads via the fecal-oral route; meticulous hand hygiene is the single most effective barrier against transmission."
+    },
+    {
+        id: 48,
+        type: "mc",
+        stem: "What is the primary rationale for monitoring prothrombin time (PT) and INR in a patient with decompensated cirrhosis?",
+        options: [
+            { text: "To evaluate the liver's ability to synthesize clotting factors and assess bleeding risk", correct: true },
+            { text: "To measure circulating blood glucose levels", correct: false },
+            { text: "To assess renal filtration capacity", correct: false },
+            { text: "To determine arterial oxygen saturation", correct: false }
+        ],
+        rationale: "Prothrombin and coagulation factors are produced by the liver; prolonged PT/INR warns the nurse of high bleeding risks and coagulopathy."
+    },
+    {
+        id: 49,
+        type: "mc",
+        stem: "Which nursing action demonstrates application of professional leadership and legal responsibility when caring for a deteriorating cirrhotic client?",
+        options: [
+            { text: "Promptly communicating acute changes in mental status and vital signs to the primary provider and initiating safety protocols", correct: true },
+            { text: "Waiting until the end of the shift to report abnormal lab results", correct: false },
+            { text: "Leaving the client unattended while taking a scheduled break", correct: false },
+            { text: "Administering restricted medications without verifying liver function", correct: true } // Note: option A is the correct one
+        ],
+        rationale: "Prompt reporting, advocacy, and proactive safety management embody professional nursing leadership and legal accountability."
+    },
+    {
+        id: 50,
+        type: "mc",
+        stem: "A client with advanced cirrhosis presents with lethargy, asterixis, fetor hepaticus, and a serum ammonia level of 118 mcg/dL. Which nursing intervention is highest priority?",
+        options: [
+            { text: "Implement fall and seizure precautions while preparing to administer lactulose and monitoring neurological status.", correct: true },
+            { text: "Encourage ambulation in the hallway twice a shift.", correct: false },
+            { text: "Administer a high-protein nutritional shake immediately.", correct: false },
+            { text: "Place the client in a flat, supine position without supplemental oxygen.", correct: false }
+        ],
+        rationale: "A confused, lethargic patient with encephalopathy is at high risk for falls and neurological decline; safety precautions and ammonia-lowering therapies (lactulose) are top priorities."
+    }
+];
+
+// --- CASE STUDY ITEM (Q51) ---
+const caseStudyData = {
+    id: 51,
+    title: "Clinical Case Study & SBAR Report",
+    scenario: "A 56-year-old male client with a 15-year history of alcoholic cirrhosis is brought to the emergency department by his spouse. The spouse reports that over the past 48 hours, the client has become increasingly confused, is sleeping all day, and has experienced a foul, musty sweet odor on his breath. Today, his spouse noticed rapid, nonrhythmic flapping movements when trying to extend his wrists.\n\nAssessment Findings:\n- Vitals: T 98.2°F, BP 92/54 mmHg, HR 112 bpm, RR 22 breaths/min, SpO2 92% on room air.\n- Abdomen: Markedly distended with prominent umbilical caput medusae and shifting dullness. Abdominal girth measures 114 cm.\n- Neurologic: Lethargic, disoriented to time and place, displays bilateral asterixis. GCS is 13.\n- Labs: Serum ammonia 118 mcg/dL (elevated), ALT 42 U/L, AST 88 U/L, Total Bilirubin 3.2 mg/dL, Albumin 2.1 g/dL, INR 2.2, Hgb 9.8 g/dL.",
+    sbarPrompts: [
+        { label: "S (Situation)", placeholder: "State the immediate clinical problem..." },
+        { label: "B (Background)", placeholder: "Summarize relevant patient history and background..." },
+        { label: "A (Assessment)", placeholder: "Detail current vital signs, lab findings, and physical exam data..." },
+        { label: "R (Recommendation)", placeholder: "Propose immediate nursing actions and medical interventions..." }
+    ]
+};
+
+let currentQuestionIndex = 0;
+let userAnswers = {};
+let missedQuestions = [];
+
+function initQuiz() {
+    const container = document.getElementById('quiz-container');
+    container.innerHTML = '';
+
+    quizData.forEach((q, index) => {
+        const card = document.createElement('div');
+        card.className = `question-card ${index === 0 ? 'active' : ''}`;
+        card.id = `question-${index}`;
+
+        let optionsHtml = '';
+        q.options.forEach((opt, oIndex) => {
+            optionsHtml += `
+                <li class="option-item" onclick="selectOption(${index}, ${oIndex}, '${q.type}')">
+                    <input type="${q.type === 'sata' ? 'checkbox' : 'radio'}" name="q${index}" id="q${index}_opt${oIndex}">
+                    <span>${opt.text}</span>
+                </li>
+            `;
+        });
+
+        card.innerHTML = `
+            <div class="question-number">Question ${index + 1} of ${quizData.length + 1}</div>
+            <div class="question-stem">${q.stem}</div>
+            <ul class="options-list">${optionsHtml}</ul>
+            <button onclick="submitAnswer(${index})" id="submit-btn-${index}">Submit Answer</button>
+            <div class="rationale-box" id="rationale-${index}">
+                <strong>Rationale:</strong> ${q.rationale}
+            </div>
+        `;
+        container.appendChild(card);
+    });
+
+    // Add Case Study Card (Q51)
+    const caseCard = document.createElement('div');
+    caseCard.className = `question-card`;
+    caseCard.id = `question-${quizData.length}`;
+    caseCard.innerHTML = `
+        <div class="question-number">Clinical Case Study & SBAR Report (${quizData.length + 1} of ${quizData.length + 1})</div>
+        <div class="question-stem">${caseStudyData.title}</div>
+        <div class="case-study-box">${caseStudyData.scenario.replace(/\n/g, '<br>')}</div>
+        <p><strong>Complete the SBAR Report below based on Chapter 50 clinical guidelines:</strong></p>
+        ${caseStudyData.sbarPrompts.map((sbar, sIndex) => `
+            <label><strong>${sbar.label}:</strong></label>
+            <textarea class="sbar-input" id="sbar-${sIndex}" placeholder="${sbar.placeholder}"></textarea>
+        `).join('')}
+        <button onclick="submitCaseStudy(${quizData.length})" id="submit-btn-${quizData.length}">Submit Case Study & Finish Exam</button>
+        <div class="rationale-box" id="rationale-${quizData.length}">
+            <strong>Model SBAR Answer Key:</strong><br>
+            • <strong>S:</strong> 56-year-old male with alcoholic cirrhosis presenting with acute confusion, lethargy, fetor hepaticus, and asterixis.<br>
+            • <strong>B:</strong> 15-year-old history of alcoholic cirrhosis, now showing signs of decompensation and severe hepatic encephalopathy.<br>
+            • <strong>A:</strong> BP 92/54, HR 112, SpO2 92%, ammonia 118 mcg/dL, INR 2.2, albumin 2.1 g/dL, marked ascites.<br>
+            • <strong>R:</strong> Initiate fall/seizure precautions, administer lactulose as ordered, apply oxygen if needed, notify provider for urgent ammonia-lowering therapy and volume support.
+        </div>
+    `;
+    container.appendChild(caseCard);
+
+    updateProgress();
+}
+
+function selectOption(qIndex, oIndex, type) {
+    const card = document.getElementById(`question-${qIndex}`);
+    const items = card.querySelectorAll('.option-item');
+    const input = items[oIndex].querySelector('input');
+
+    if (type === 'mc') {
+        items.forEach((item, idx) => {
+            item.querySelector('input').checked = (idx === oIndex);
+        });
+    } else {
+        input.checked = !input.checked;
+    }
+}
+
+function submitAnswer(qIndex) {
+    const q = quizData[qIndex];
+    const card = document.getElementById(`question-${qIndex}`);
+    const items = card.querySelectorAll('.option-item');
+    const submitBtn = document.getElementById(`submit-btn-${qIndex}`);
+    const rationaleBox = document.getElementById(`rationale-${qIndex}`);
+
+    let userSelection = [];
+    items.forEach((item, idx) => {
+        if (item.querySelector('input').checked) {
+            userSelection.push(idx);
+        }
+    });
+
+    if (userSelection.length === 0) {
+        alert("Please select at least one answer before submitting.");
+        return;
+    }
+
+    // Check correctness
+    let correctIndices = [];
+    q.options.forEach((opt, idx) => {
+        if (opt.correct) correctIndices.push(idx);
+    });
+
+    let isCorrect = false;
+    if (q.type === 'mc') {
+        isCorrect = (userSelection.length === 1 && userSelection[0] === correctIndices[0]);
+    } else {
+        // SATA: all correct must be selected and no incorrect selected
+        const exactMatch = correctIndices.every(val => userSelection.includes(val)) && userSelection.every(val => correctIndices.includes(val));
+        isCorrect = exactMatch;
+    }
+
+    userAnswers[qIndex] = isCorrect;
+    if (!isCorrect) {
+        missedQuestions.push(qIndex);
+    }
+
+    // Highlight options
+    items.forEach((item, idx) => {
+        if (q.options[idx].correct) {
+            item.classList.add('correct');
+        } else if (userSelection.includes(idx)) {
+            item.classList.add('incorrect');
+        }
+        item.style.pointerEvents = 'none';
+    });
+
+    submitBtn.textContent = "Next Question";
+    submitBtn.onclick = function() {
+        navigateNext(qIndex + 1);
+    };
+
+    rationaleBox.classList.add('visible');
+}
+
+function submitCaseStudy(qIndex) {
+    const sbar0 = document.getElementById('sbar-0').value.trim();
+    const sbar1 = document.getElementById('sbar-1').value.trim();
+    const sbar2 = document.getElementById('sbar-2').value.trim();
+    const sbar3 = document.getElementById('sbar-3').value.trim();
+
+    if (!sbar0 || !sbar1 || !sbar2 || !sbar3) {
+        alert("Please fill out all sections of the SBAR report.");
+        return;
+    }
+
+    userAnswers[qIndex] = true; // Case study completed
+    document.getElementById(`submit-btn-${qIndex}`).style.display = 'none';
+    document.getElementById(`rationale-${qIndex}`).classList.add('visible');
+    
+    // Disable inputs
+    for (let i = 0; i < 4; i++) {
+        document.getElementById(`sbar-${i}`).disabled = true;
+    }
+
+    setTimeout(showResults, 3000);
+}
+
+function navigateNext(nextIndex) {
+    document.querySelectorAll('.question-card').forEach(c => c.classList.remove('active'));
+    const nextCard = document.getElementById(`question-${nextIndex}`);
+    if (nextCard) {
+        nextCard.classList.add('active');
+        updateProgress();
+    } else {
+        showResults();
+    }
+}
+
+function updateProgress() {
+    const activeCard = document.querySelector('.question-card.active');
+    const total = quizData.length + 1;
+    const currentIndex = parseInt(activeCard.id.split('-')[1]);
+    const progress = ((currentIndex + 1) / total) * 100;
+    document.getElementById('progressBar').style.width = `${progress}%`;
+}
+
+function showResults() {
+    document.getElementById('quiz-container').style.display = 'none';
+    document.getElementById('results-screen').style.display = 'block';
+    document.getElementById('progressBar').style.width = '100%';
+
+    const totalItems = quizData.length + 1; // 50 MC/SATA + 1 Case Study
+    let correctCount = 0;
+    for (let key in userAnswers) {
+        if (userAnswers[key]) correctCount++;
+    }
+
+    const percentage = Math.round((correctCount / totalItems) * 100);
+    document.getElementById('finalScoreDisplay').textContent = `${percentage}% (${correctCount}/${totalItems} Correct)`;
+
+    let message = "";
+    if (percentage >= 90) {
+        message = "🌟 Outstanding, Jeffrey! You crushed this exam with 90%+ mastery! You are fully prepared for NCLEX success!";
+    } else if (percentage >= 80) {
+        message = "👏 Great job! Solid understanding of liver conditions and hepatitis. Review your rationales to lock in that 90%+ score.";
+    } else {
+        message = "💪 Good effort! Review Chapter 50 and your missed questions to boost your clinical reasoning.";
+    }
+    document.getElementById('scoreMessage').textContent = message;
+
+    if (missedQuestions.length > 0) {
+        document.getElementById('missedBtn').style.display = 'inline-block';
+    }
+}
+
+function restartQuiz() {
+    userAnswers = {};
+    missedQuestions = [];
+    document.getElementById('results-screen').style.display = 'none';
+    document.getElementById('quiz-container').style.display = 'block';
+    document.getElementById('missedBtn').style.display = 'none';
+    initQuiz();
+}
+
+function retakeMissed() {
+    // Re-initialize showing only missed questions
+    alert("Retake missed questions feature activated! (Reloading quiz to review missed items).");
+    restartQuiz();
+}
+
+window.onload = initQuiz;
+</script>
+</body>
+</html>
